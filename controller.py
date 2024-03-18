@@ -8,5 +8,5 @@ class MainController:
         self._connectSignalsAndSlots()
 
     def _connectSignalsAndSlots(self):
-        self._view.menuBtn1.clicked.connect(self._view._changeImageBoxColour)
-
+        self._view.menuBtn2.clicked.connect(self._view.changeImageBoxColour)
+        self._view.menuBtn1.clicked.connect(self._view.addToTree)

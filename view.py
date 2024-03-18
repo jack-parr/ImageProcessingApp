@@ -1,7 +1,7 @@
 import PyQt6.QtWidgets as pyqtWidgets
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette
 import config
+import components
 
 class MainWindow(pyqtWidgets.QMainWindow):
     # this is the main window (view).
@@ -25,7 +25,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
         menuLayout = pyqtWidgets.QHBoxLayout()
         menuLayout.setSpacing(0)
         menuLayout.setContentsMargins(0, 0, 0, 0)
-        self.menuBtn1 = pyqtWidgets.QPushButton('1')
+        self.menuBtn1 = pyqtWidgets.QPushButton('New Stage')
         self.menuBtn1.setFixedHeight(config.MENU_BTN_HEIGHT)
         self.menuBtn2 = pyqtWidgets.QPushButton('2')
         self.menuBtn2.setFixedHeight(config.MENU_BTN_HEIGHT)
@@ -54,8 +54,13 @@ class MainWindow(pyqtWidgets.QMainWindow):
         bodyBaseLayout.setContentsMargins(0, 0, 0, 0)
 
         # TREE
-        self.treeDisplay = pyqtWidgets.QLabel()
+        self.treeDisplay = pyqtWidgets.QWidget()
         self.treeDisplay.setStyleSheet('background-color: green')
+        self.treeLayout = pyqtWidgets.QVBoxLayout()
+        self.treeLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        self.treeLayout.setSpacing(10)
+        self.treeLayout.setContentsMargins(0, 0, 0, 0)
+        self.treeDisplay.setLayout(self.treeLayout)
         bodyBaseLayout.addWidget(self.treeDisplay)
 
         # IMAGE AND TUNING BOARD
@@ -80,6 +85,29 @@ class MainWindow(pyqtWidgets.QMainWindow):
         bodyBasePanel.setLayout(bodyBaseLayout)
         self.baseLayout.addWidget(bodyBasePanel)
     
-    def _changeImageBoxColour(self):
-        print(1)
+    def changeImageBoxColour(self):
         self.imageDisplay.setStyleSheet('background-color: pink')
+    
+    def addToTree(self):
+        newStage = components.TreeStage()
+        self.treeLayout.addWidget(newStage)
+        newStage.moveBtn1.clicked.connect(self.moveStageUp)
+        newStage.moveBtn2.clicked.connect(self.moveStageDown)
+    
+    def moveStageUp(self):
+        stage = self.sender().parent().parent()  # getting the TreeStage object.
+        currIdx = self.treeLayout.indexOf(stage)
+        if currIdx == 0:  # can't move up if at the top already.
+            return False
+        self.treeLayout.removeWidget(stage)
+        self.treeLayout.insertWidget(currIdx - 1, stage)
+
+
+    def moveStageDown(self):
+        stage = self.sender().parent().parent()  # getting the TreeStage object.
+        currIdx = self.treeLayout.indexOf(stage)
+        if currIdx == self.treeLayout.count() - 1:  # can't move down if at the bottom already.
+            return False
+        self.treeLayout.removeWidget(stage)
+        self.treeLayout.insertWidget(currIdx + 1, stage)
+
