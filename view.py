@@ -91,6 +91,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
     def addToTree(self):
         newStage = components.TreeStage()
         self.treeLayout.addWidget(newStage)
+        newStage.deleteBtn.clicked.connect(self.removeStage)
         newStage.moveBtn1.clicked.connect(self.moveStageUp)
         newStage.moveBtn2.clicked.connect(self.moveStageDown)
     
@@ -110,4 +111,8 @@ class MainWindow(pyqtWidgets.QMainWindow):
             return False
         self.treeLayout.removeWidget(stage)
         self.treeLayout.insertWidget(currIdx + 1, stage)
+
+    def removeStage(self):
+        stage = self.sender().parent().parent()  # getting the TreeStage object.
+        self.treeLayout.removeWidget(stage)
 

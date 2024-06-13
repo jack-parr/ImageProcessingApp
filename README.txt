@@ -5,12 +5,9 @@ Built using the MVC design pattern.
 Note: all functions that modify the view must be in the view class. More complicated functions can be put in the model, but ultimately call the view functions to actually modify the view.
 
 To-Do:
-- Create frame for the app.
 - Add ability to import an image into the image display.
 - Add ability to clear image from the image display.
-- Add ability to add a new stage to the tree.
 - Add ability to remove a stage from the tree.
-- Add ability to change order of stages in the tree.
 
 Plan:
 menuBtn1: Image (dropdown of options: import, export, clear).
