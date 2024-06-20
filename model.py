@@ -1,3 +1,7 @@
+'''
+This file contains all the data-related functions, performing logic functions requested by the controller and returning the result.
+'''
+
 import ast
 import config
 

@@ -1,3 +1,7 @@
+'''
+This file contains classes for the custom components that make up the view.
+'''
+
 import PyQt6.QtWidgets as pyqtWidgets
 import config
 import random

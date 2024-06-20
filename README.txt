@@ -17,4 +17,4 @@ menuBtn4: Export tree as function (saves a file).
 
 Have tree of stages on the left, make it scrollable.
 Have image displayed in a square box in top right.
-Have a parameter modiying screen below the box. Scrollable if needed.
+Have a parameter modifying screen below the box. Scrollable if needed.

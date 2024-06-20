@@ -1,10 +1,14 @@
+'''
+This file is the main window (view). It contains any function that directly build or alter the view.
+'''
+
 import PyQt6.QtWidgets as pyqtWidgets
 from PyQt6.QtCore import Qt
 import config
 import components
 
 class MainWindow(pyqtWidgets.QMainWindow):
-    # this is the main window (view).
+
     def __init__(self):
         # initialises.
         super().__init__()

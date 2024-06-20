@@ -1,3 +1,7 @@
+'''
+This file contains configuration parameters.
+'''
+
 ERROR_MSG = 'ERROR'
 WINDOW_SIZE = 700
 IMAGE_SIZE = 60
