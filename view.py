@@ -4,8 +4,11 @@ This file is the main window (view). It contains any function that directly buil
 
 import PyQt6.QtWidgets as pyqtWidgets
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QAction, QPixmap
 import config
 import components
+import matplotlib.image as mpimg
+from PIL import Image
 
 class MainWindow(pyqtWidgets.QMainWindow):
 
@@ -15,7 +18,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
         self.setWindowTitle('My App')
         self.setFixedSize(config.WINDOW_SIZE, config.WINDOW_SIZE)
 
-        self.baseLayout = pyqtWidgets.QVBoxLayout()
+        self.baseLayout = pyqtWidgets.QHBoxLayout()
         self.baseLayout.setSpacing(0)
         self.baseLayout.setContentsMargins(0, 0, 0, 0)
         self.centralWidget = pyqtWidgets.QWidget()
@@ -26,36 +29,23 @@ class MainWindow(pyqtWidgets.QMainWindow):
     
     def _createFrame(self):
         # MENU
-        menuLayout = pyqtWidgets.QHBoxLayout()
-        menuLayout.setSpacing(0)
-        menuLayout.setContentsMargins(0, 0, 0, 0)
-        self.menuBtn1 = pyqtWidgets.QPushButton('New Stage')
-        self.menuBtn1.setFixedHeight(config.MENU_BTN_HEIGHT)
-        self.menuBtn2 = pyqtWidgets.QPushButton('2')
-        self.menuBtn2.setFixedHeight(config.MENU_BTN_HEIGHT)
-        self.menuBtn3 = pyqtWidgets.QPushButton('3')
-        self.menuBtn3.setFixedHeight(config.MENU_BTN_HEIGHT)
-        self.menuBtn4 = pyqtWidgets.QPushButton('4')
-        self.menuBtn4.setFixedHeight(config.MENU_BTN_HEIGHT)
-        self.menuBtn5 = pyqtWidgets.QPushButton('5')
-        self.menuBtn5.setFixedHeight(config.MENU_BTN_HEIGHT)
-        
-        menuLayout.addWidget(self.menuBtn1)
-        menuLayout.addWidget(self.menuBtn2)
-        menuLayout.addWidget(self.menuBtn3)
-        menuLayout.addWidget(self.menuBtn4)
-        menuLayout.addWidget(self.menuBtn5)
+        menuBar = self.menuBar()
+        self._createActions()
 
-        menuPanel = pyqtWidgets.QWidget()
-        menuPanel.setFixedHeight(config.MENU_BTN_HEIGHT)
-        menuPanel.setLayout(menuLayout)
-        self.baseLayout.addWidget(menuPanel)
+        imageMenu = pyqtWidgets.QMenu("&Image", self)
+        menuBar.addMenu(imageMenu)
+        imageMenu.addAction(self.importImageAction)
+        imageMenu.addAction(self.exportImageAction)
+        imageMenu.addAction(self.clearImageAction)
 
+        treeMenu = menuBar.addMenu("&Tree")
+        treeMenu.addAction(self.importTreeAction)
+        treeMenu.addAction(self.exportTreeAction)
+        treeMenu.addAction(self.clearTreeAction)
 
-        # BODY BASE LAYOUT
-        bodyBaseLayout = pyqtWidgets.QHBoxLayout()
-        bodyBaseLayout.setSpacing(0)
-        bodyBaseLayout.setContentsMargins(0, 0, 0, 0)
+        newStageMenu = menuBar.addMenu("&New Stage")
+        newStageMenu.addAction(self.stage1Action)
+        newStageMenu.addAction(self.stage2Action)
 
         # TREE
         self.treeDisplay = pyqtWidgets.QWidget()
@@ -65,32 +55,57 @@ class MainWindow(pyqtWidgets.QMainWindow):
         self.treeLayout.setSpacing(10)
         self.treeLayout.setContentsMargins(0, 0, 0, 0)
         self.treeDisplay.setLayout(self.treeLayout)
-        bodyBaseLayout.addWidget(self.treeDisplay)
+        self.baseLayout.addWidget(self.treeDisplay)
 
         # IMAGE AND TUNING BOARD
-        bodyRightLayout = pyqtWidgets.QVBoxLayout()
-        bodyRightLayout.setSpacing(0)
-        bodyRightLayout.setContentsMargins(0, 0, 0, 0)
+        baseRightLayout = pyqtWidgets.QVBoxLayout()
+        baseRightLayout.setSpacing(0)
+        baseRightLayout.setContentsMargins(0, 0, 0, 0)
 
         self.imageDisplay = pyqtWidgets.QLabel()
-        self.imageDisplay.setStyleSheet('background-color: red')
-        bodyRightLayout.addWidget(self.imageDisplay)
+        self.imageDisplay.setStyleSheet('background-color: black')
+        baseRightLayout.addWidget(self.imageDisplay)
 
         self.tuningDisplay = pyqtWidgets.QLabel()
         self.tuningDisplay.setStyleSheet('background-color: blue')
-        bodyRightLayout.addWidget(self.tuningDisplay)
+        baseRightLayout.addWidget(self.tuningDisplay)
 
         bodyRightPanel = pyqtWidgets.QWidget()
-        bodyRightPanel.setLayout(bodyRightLayout)
-        bodyBaseLayout.addWidget(bodyRightPanel)
+        bodyRightPanel.setLayout(baseRightLayout)
+        self.baseLayout.addWidget(bodyRightPanel)
 
-        # ADDING TO BODY BASE
-        bodyBasePanel = pyqtWidgets.QWidget()
-        bodyBasePanel.setLayout(bodyBaseLayout)
-        self.baseLayout.addWidget(bodyBasePanel)
     
-    def changeImageBoxColour(self):
-        self.imageDisplay.setStyleSheet('background-color: pink')
+    def _createActions(self):
+        # creates the actions to trigger the menu buttons.
+        self.importImageAction = QAction("&Import", self)
+        self.importImageAction.triggered.connect(self.importImage)
+        self.exportImageAction = QAction("&Export", self)
+        self.clearImageAction = QAction("&Clear", self)
+        
+        self.importTreeAction = QAction("&Import", self)
+        self.exportTreeAction = QAction("&Export", self)
+        self.clearTreeAction = QAction("&Clear", self)
+        self.clearTreeAction.triggered.connect(self.clearTree)
+
+        self.stage1Action = QAction("&Stage 1", self)
+        self.stage1Action.triggered.connect(self.addToTree)
+        self.stage2Action = QAction("&Stage 2", self)
+
+    
+    def importImage(self):
+        # imports an image into the QLabel.
+        fname = pyqtWidgets.QFileDialog.getOpenFileName(self, "Choose Image", "", "Image Files (*.jpg, *.png)")[0]
+        pixmap = QPixmap(fname)  # opening image as a pixmap.
+        img = pixmap.toImage()  # getting image data.
+        h = self.imageDisplay.height()
+        w = self.imageDisplay.width()
+        self.imageDisplay.setPixmap(pixmap.scaled(w, h, Qt.AspectRatioMode.KeepAspectRatio))  # inserting pixmap into QLabel.
+
+    
+    def clearTree(self):
+        for i in reversed(range(self.treeLayout.count())): 
+            self.treeLayout.itemAt(i).widget().setParent(None)
+
     
     def addToTree(self):
         newStage = components.TreeStage()
@@ -98,6 +113,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
         newStage.deleteBtn.clicked.connect(self.removeStage)
         newStage.moveBtn1.clicked.connect(self.moveStageUp)
         newStage.moveBtn2.clicked.connect(self.moveStageDown)
+
     
     def moveStageUp(self):
         stage = self.sender().parent().parent()  # getting the TreeStage object.
@@ -115,6 +131,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
             return False
         self.treeLayout.removeWidget(stage)
         self.treeLayout.insertWidget(currIdx + 1, stage)
+
 
     def removeStage(self):
         stage = self.sender().parent().parent()  # getting the TreeStage object.
