@@ -41,6 +41,7 @@ class MainWindow(pyqtWidgets.QMainWindow):
         treeMenu = menuBar.addMenu("&Tree")
         treeMenu.addAction(self.importTreeAction)
         treeMenu.addAction(self.exportTreeAction)
+        treeMenu.addAction(self.applyTreeAction)
         treeMenu.addAction(self.clearTreeAction)
 
         newStageMenu = menuBar.addMenu("&New Stage")
@@ -64,7 +65,8 @@ class MainWindow(pyqtWidgets.QMainWindow):
 
         self.imageDisplay = pyqtWidgets.QLabel()
         self.imageDisplay.setStyleSheet('background-color: black')
-        baseRightLayout.addWidget(self.imageDisplay)
+        self.imageDisplay.setFixedSize(int(config.WINDOW_SIZE/2), int(config.WINDOW_SIZE/2)-10)
+        baseRightLayout.addWidget(self.imageDisplay, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.tuningDisplay = pyqtWidgets.QLabel()
         self.tuningDisplay.setStyleSheet('background-color: blue')
@@ -81,14 +83,16 @@ class MainWindow(pyqtWidgets.QMainWindow):
         self.importImageAction.triggered.connect(self.importImage)
         self.exportImageAction = QAction("&Export", self)
         self.clearImageAction = QAction("&Clear", self)
+        self.clearImageAction.triggered.connect(self.clearImage)
         
         self.importTreeAction = QAction("&Import", self)
         self.exportTreeAction = QAction("&Export", self)
+        self.applyTreeAction = QAction("&Apply to Image", self)
         self.clearTreeAction = QAction("&Clear", self)
         self.clearTreeAction.triggered.connect(self.clearTree)
 
-        self.stage1Action = QAction("&Stage 1", self)
-        self.stage1Action.triggered.connect(self.addToTree)
+        self.stage1Action = QAction("&Median Filtering", self)
+        self.stage1Action.triggered.connect(self.newStageMedianFiltering)
         self.stage2Action = QAction("&Stage 2", self)
 
     
@@ -99,7 +103,12 @@ class MainWindow(pyqtWidgets.QMainWindow):
         img = pixmap.toImage()  # getting image data.
         h = self.imageDisplay.height()
         w = self.imageDisplay.width()
-        self.imageDisplay.setPixmap(pixmap.scaled(w, h, Qt.AspectRatioMode.KeepAspectRatio))  # inserting pixmap into QLabel.
+        self.imageDisplay.setPixmap(pixmap.scaled(w, h, Qt.AspectRatioMode.KeepAspectRatio), )  # inserting pixmap into QLabel.
+
+    
+    def clearImage(self):
+        # clears the image from the display window.
+        self.imageDisplay.clear()
 
     
     def clearTree(self):
@@ -107,8 +116,9 @@ class MainWindow(pyqtWidgets.QMainWindow):
             self.treeLayout.itemAt(i).widget().setParent(None)
 
     
-    def addToTree(self):
+    def newStageMedianFiltering(self):
         newStage = components.TreeStage()
+        newStage.titleBox.setText('Median Filtering')
         self.treeLayout.addWidget(newStage)
         newStage.deleteBtn.clicked.connect(self.removeStage)
         newStage.moveBtn1.clicked.connect(self.moveStageUp)
